@@ -194,7 +194,7 @@ class PushingEnv(object):
         final_obj = self.get_box_pose()[0][:2]
         goal_obj = goal_obj.numpy().flatten()
         loss = np.linalg.norm(final_obj-goal_obj)
-        print(f"L2 Distance between final obj position and goal obj position is {loss}")
+        print("L2 Distance between final obj position and goal obj position is", loss)
         return loss
 
     def plan_forward_model(self, model, seed=0):
@@ -215,7 +215,7 @@ class PushingEnv(object):
         final_obj = self.get_box_pose()[0][:2]
         goal_obj = goal_obj.numpy().flatten()
         loss = np.linalg.norm(final_obj-goal_obj)
-        print(f"L2 Distance between final obj position and goal obj position is {loss}")
+        print("L2 Distance between final obj position and goal obj position is", loss)
         return loss
 
     def plan_inverse_model_extrapolate(self, seed=0):
@@ -243,5 +243,5 @@ class PushingEnv(object):
         final_obj = self.get_box_pose()[0][:2]
         goal_obj = goal_obj.numpy().flatten()
         loss = np.linalg.norm(final_obj-goal_obj)
-        print(f"L2 Distance between final obj position and goal obj position is {loss}")
+        print("L2 Distance between final obj position and goal obj position is", loss)
         return loss                               

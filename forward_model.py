@@ -14,7 +14,7 @@ from push_env import PushingEnv
 
 class ForwardModelNet(torch.nn.Module):
     def __init__(self):
-        super(InverseModelNet, self).__init__()
+        super(ForwardModelNet, self).__init__()
         self.fc1 = nn.Linear(6, 30)
         self.fc2 = nn.Linear(30, 30)
         self.fc3 = nn.Linear(30, 2)
@@ -58,14 +58,14 @@ class ForwardModel:
                 obj1 = data['obj1']
                 obj2 = data['obj2']
                 push = data['push']
-                inputs = torch.cat((obj1, push), axis=1)
+                inputs = torch.cat((obj1, push.double()), axis=1)
 
                 # zero the parameter gradients
                 optimizer.zero_grad()
 
                 # forward + backward + optimize
                 outputs = self.net(inputs.float())
-                loss = criterion(outputs, obj2)
+                loss = criterion(outputs.double(), obj2)
                 loss.backward()
                 optimizer.step()
 
@@ -94,7 +94,7 @@ class ForwardModel:
             obj1 = data['obj1']
             obj2 = data['obj2']
             push = data['push']
-            inputs = torch.cat((obj1, push), axis=1)
+            inputs = torch.cat((obj1, push.double()), axis=1)
             output = self.net(inputs.float())
             loss = criterion(output,obj2)
             train_loss += loss.item()
@@ -103,7 +103,7 @@ class ForwardModel:
             obj1 = data['obj1']
             obj2 = data['obj2']
             push = data['push']
-            inputs = torch.cat((obj1, push), axis=1)
+            inputs = torch.cat((obj1, push.double()), axis=1)
             output = self.net(inputs.float())
             loss = criterion(output,obj2)
             valid_loss += loss.item()
@@ -168,7 +168,7 @@ def sample_ang_len(mu_ang, kappa_ang, mu_len, sigma_len):
 
 if __name__ == "__main__":
     model = ForwardModel()
-    num_epochs=30
+    num_epochs=10
     train_losses, valid_losses = model.train(num_epochs=num_epochs)
     model.save(PATH="forward_model_save.pt")
 
