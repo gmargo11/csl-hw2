@@ -66,7 +66,7 @@ class PushingEnv(object):
 
     def move_ee_xyz(self, delta_xyz, save=False):
 	if save:
-	    step_size = 0.015
+	    step_size = 0.0045
             num_steps = int(np.linalg.norm(delta_xyz) / step_size)
 	    step = np.array(delta_xyz) / num_steps
 	    for i in range(num_steps):
@@ -174,13 +174,13 @@ class PushingEnv(object):
                 break
         return start_x, start_y, end_x, end_y
 
-    def execute_push(self, start_x, start_y, end_x, end_y):
+    def execute_push(self, start_x, start_y, end_x, end_y, save=False):
         # move to starting push location
         init_obj = self.get_box_pose()[0][:2]
         self.move_ee_xyz([start_x-self.ee_home[0], start_y-self.ee_home[1], 0])
         self.move_ee_xyz([0, 0, self.ee_min_height-self.ee_rest_height])
         
-        self.move_ee_xyz([end_x-start_x, end_y-start_y, 0], save=True)# push
+        self.move_ee_xyz([end_x-start_x, end_y-start_y, 0], save)# push
         # important that we use move_ee_xyz, as set_ee_pose can throw obj in motion
         self.move_ee_xyz([0, 0, self.ee_rest_height-self.ee_min_height])
         
@@ -189,7 +189,7 @@ class PushingEnv(object):
         final_obj = self.get_box_pose()[0][:2]
         return init_obj, final_obj
 
-    def plan_inverse_model(self, model, seed=0):
+    def plan_inverse_model(self, model, save=False, seed=0):
         p.connect(p.DIRECT)
 	self.go_home()
         self.reset_box()
@@ -207,7 +207,7 @@ class PushingEnv(object):
         start_x, start_y, end_x, end_y = push
         self.reset_box()       
 	p.startStateLogging( p.STATE_LOGGING_VIDEO_MP4, "plan_inverse_model.mp4")
-        self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y)
+        self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, save=save)
         final_obj = self.get_box_pose()[0][:2]
         goal_obj = goal_obj.numpy().flatten()
         loss = np.linalg.norm(final_obj-goal_obj)

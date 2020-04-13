@@ -134,7 +134,7 @@ def plan_CEM(model, env):
 
 if __name__ == "__main__":
     model = InverseModel()
-    num_epochs=2
+    num_epochs=20
     train_losses, valid_losses = model.train(num_epochs=num_epochs)
     model.save(PATH="inverse_model_save.pt")
 
@@ -154,5 +154,14 @@ if __name__ == "__main__":
     #print(model.infer(init_obj, goal_obj))
 
     env = PushingEnv(ifRender=False)
-    for seed in range(10):
-        print("test loss:", env.plan_inverse_model(model, seed=seed))
+    num_trials = 10
+    errors = np.zeros(num_trials)
+    # save one push
+    errors[0] = env.plan_inverse_model(model, save=True, seed=0)
+    print("test loss:", errors[0])
+    # try 10 random seeds
+    for seed in range(1,10):
+	errors[seed] = env.plan_inverse_model(model, seed=seed)
+        print("test loss:", errors[seed])
+    
+    print("average loss:", np.mean(errors))
