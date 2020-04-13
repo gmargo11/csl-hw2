@@ -64,12 +64,20 @@ class PushingEnv(object):
         self.ext_mat = self.robot.cam.get_cam_ext()
         self.int_mat = self.robot.cam.get_cam_int()      
 
-    def move_ee_xyz(self, delta_xyz):
-	img = self.get_img()
-	plt.plot()
-	plt.imshow(img)
-	plt.savefig('pos.png')
-        return self.robot.arm.move_ee_xyz(delta_xyz, eef_step=0.015)
+    def move_ee_xyz(self, delta_xyz, save=False):
+	if save:
+	    step_size = 0.0015
+            num_steps = int(np.linalg.norm(delta_xyz) / step_size)
+	    step = np.array(delta_xyz) / num_steps
+	    for i in range(num_steps):
+	        img = self.get_img()
+	        plt.plot()
+	        plt.imshow(img)
+	        plt.savefig('run/pos{:04d}.png'.format(i))
+                out = self.robot.arm.move_ee_xyz(step.tolist(), eef_step=0.015)
+            return out
+	else:
+	    return self.robot.arm.move_ee_xyz(delta_xyz, eef_step=0.015)
 
 
     def set_ee_pose(self, pos, ori=None, ignore_physics=False):
@@ -172,7 +180,7 @@ class PushingEnv(object):
         self.move_ee_xyz([start_x-self.ee_home[0], start_y-self.ee_home[1], 0])
         self.move_ee_xyz([0, 0, self.ee_min_height-self.ee_rest_height])
         
-        self.move_ee_xyz([end_x-start_x, end_y-start_y, 0]) # push
+        self.move_ee_xyz([end_x-start_x, end_y-start_y, 0], save=True)# push
         # important that we use move_ee_xyz, as set_ee_pose can throw obj in motion
         self.move_ee_xyz([0, 0, self.ee_rest_height-self.ee_min_height])
         
