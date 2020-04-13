@@ -73,7 +73,7 @@ class PushingEnv(object):
 	        img = self.get_img()
 	        plt.plot()
 	        plt.imshow(img)
-	        plt.savefig('run/pos{:04d}.png'.format(i))
+	        plt.savefig('imgs/pos{:04d}.png'.format(i))
                 out = self.robot.arm.move_ee_xyz(step.tolist(), eef_step=0.015)
             return out
 	else:
