@@ -7,6 +7,7 @@ from airobot.utils.common import euler2quat, quat2euler
 import torch
 import pybullet as p
 import matplotlib.pyplot as plt
+from PIL import Image
 
 class PushingEnv(object):
     """
@@ -64,22 +65,19 @@ class PushingEnv(object):
         self.ext_mat = self.robot.cam.get_cam_ext()
         self.int_mat = self.robot.cam.get_cam_int()      
 
-    def move_ee_xyz(self, delta_xyz, img_save_name=None):
-        if img_save_name is not None:
-            # write visualizations to png files... use ffmpeg to make them into video after
-            step_size = 0.0045
+    def move_ee_xyz(self, delta_xyz, save=False):
+	if save:
+	    step_size = 0.0015
             num_steps = int(np.linalg.norm(delta_xyz) / step_size)
-            step = np.array(delta_xyz) / num_steps
-            for i in range(num_steps):
-                img = self.get_img()
-                plt.plot()
-                plt.imshow(img)
-                plt.img_save_namefig('imgs/{s}{:04d}.png'.format(img_save_name, i))
-                    out = self.robot.arm.move_ee_xyz(step.tolist(), eef_step=0.015)
-                return out
-        else:
-            return self.robot.arm.move_ee_xyz(delta_xyz, eef_step=0.015)
-
+	    step = np.array(delta_xyz) / num_steps
+	    for i in range(num_steps):
+	        img = self.get_img()
+	        im = Image.fromarray(img)
+	        im.save('imgs/pos{:04d}.png'.format(i))
+                out = self.robot.arm.move_ee_xyz(step.tolist(), eef_step=0.015)
+            return out
+	else:
+	    return self.robot.arm.move_ee_xyz(delta_xyz, eef_step=0.015)
 
     def set_ee_pose(self, pos, ori=None, ignore_physics=False):
         jpos = self.robot.arm.compute_ik(pos, ori)
