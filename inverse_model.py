@@ -134,7 +134,7 @@ def plan_CEM(model, env):
 
 if __name__ == "__main__":
     model = InverseModel()
-    num_epochs=20
+    num_epochs=40
     train_losses, valid_losses = model.train(num_epochs=num_epochs)
     model.save(PATH="inverse_model_save.pt")
 
@@ -144,6 +144,7 @@ if __name__ == "__main__":
     plt.title("Inverse Model Training")
     plt.xlabel("Epoch")
     plt.ylabel("Loss (MSE)")
+    plt.ylim(0, train_losses[1] * 2.0)
     plt.legend(['Training Loss', 'Validation Loss'])
     plt.show()
 
