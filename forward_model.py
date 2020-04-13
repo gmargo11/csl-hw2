@@ -167,7 +167,7 @@ def sample_ang_len(mu_ang, kappa_ang, mu_len, sigma_len):
 
 
 if __name__ == "__main__":
-    model = ForwardModel()
+    model = ForwardModel(ifrender=True)
     num_epochs=10
     train_losses, valid_losses = model.train(num_epochs=num_epochs)
     model.save(PATH="forward_model_save.pt")

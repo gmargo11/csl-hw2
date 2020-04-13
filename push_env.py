@@ -177,7 +177,8 @@ class PushingEnv(object):
         return init_obj, final_obj
 
     def plan_inverse_model(self, model, seed=0):
-        self.go_home()
+        p.connect(p.DIRECT)
+	self.go_home()
         self.reset_box()
         np.random.seed(seed)
         start_x, start_y, end_x, end_y = self.sample_push(self.box_pos[0], self.box_pos[1])
