@@ -214,7 +214,7 @@ class PushingEnv(object):
         return loss
 
     def plan_forward_model(self, model, img_save_name=None, seed=0):
-        return self.plan_inverse_model(model, img_save_name=img_save_name_truth, seed=seed)
+        return self.plan_inverse_model(model, img_save_name=img_save_name, seed=seed)
 
         # same as plan inverse model I think! (CEM handled in infer())
 
