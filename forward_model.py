@@ -124,29 +124,31 @@ class ForwardModel:
         num_samples = 500
         best_action = None
         best_loss = float('inf')
+        
+        env = PushingEnv()
 
         env = PushingEnv()
 
         for i in range(num_samples):
             #push_ang, push_len = sample_ang_len(mu, sigma)
-            print(init_obj)
-            start_x, start_y, end_x, end_y = env.sample_push(init_obj[0], init_obj[1])
+            start_x, start_y, end_x, end_y = env.sample_push(init_obj[0, 0], init_obj[0, 1])
             #init_obj = np.array([obj_x, obj_y])
             #init_obj = torch.FloatTensor(init_obj).unsqueeze(0)
             push = np.array([start_x, start_y, end_x, end_y])
             push = torch.FloatTensor(push).unsqueeze(0)
 
             final_obj_pred = self.infer_fwd(init_obj, push)
-            final_obj_pred = goal_obj.numpy().flatten()
-            goal_obj = goal_obj.numpy().flatten()
+            final_obj_pred = final_obj_pred.detach().numpy().flatten()
+            goal_obj = goal_obj.flatten()
 
             loss = np.linalg.norm(goal_obj - final_obj_pred)
 
             if loss < best_loss:
                 best_loss = loss
-                best_action = np.array([start_x, start_y, end_x, end_y])
-
-        return best_action
+                best_action = np.array([[start_x, start_y, end_x, end_y]])
+	
+	print(torch.from_numpy(best_action))
+        return torch.from_numpy(best_action)
 
     def save(self, PATH):
         torch.save(self.net.state_dict(), PATH)
@@ -171,7 +173,7 @@ def sample_ang_len(mu_ang, kappa_ang, mu_len, sigma_len):
 
 if __name__ == "__main__":
     model = ForwardModel()
-    num_epochs=2
+    num_epochs=30
     train_losses, valid_losses = model.train(num_epochs=num_epochs)
     model.save(PATH="forward_model_save.pt")
 
