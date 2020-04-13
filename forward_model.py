@@ -117,17 +117,18 @@ class ForwardModel:
         x = torch.cat((init_obj, push), axis=1)
         return self.net(x)
 
-    def infer(self, init_obj, goal_obj, env):
+    def infer(self, init_obj, goal_obj):
 
-        num_samples = 100
+        num_samples = 500
         best_action = None
         best_loss = float('inf')
 
         for i in range(num_samples):
             #push_ang, push_len = sample_ang_len(mu, sigma)
-            start_x, start_y, end_x, end_y = env.sample_push(init_obj[0], init_obj[1])
-            init_obj = np.array([obj_x, obj_y])
-            init_obj = torch.FloatTensor(init_obj).unsqueeze(0)
+            print(init_obj)
+            start_x, start_y, end_x, end_y = PushingEnv.sample_push(init_obj[0], init_obj[1])
+            #init_obj = np.array([obj_x, obj_y])
+            #init_obj = torch.FloatTensor(init_obj).unsqueeze(0)
             push = np.array([start_x, start_y, end_x, end_y])
             push = torch.FloatTensor(push).unsqueeze(0)
 
