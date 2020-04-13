@@ -64,20 +64,21 @@ class PushingEnv(object):
         self.ext_mat = self.robot.cam.get_cam_ext()
         self.int_mat = self.robot.cam.get_cam_int()      
 
-    def move_ee_xyz(self, delta_xyz, save=False):
-	if save:
-	    step_size = 0.0045
+    def move_ee_xyz(self, delta_xyz, img_save_name=None):
+        if img_save_name is not None:
+            # write visualizations to png files... use ffmpeg to make them into video after
+            step_size = 0.0045
             num_steps = int(np.linalg.norm(delta_xyz) / step_size)
-	    step = np.array(delta_xyz) / num_steps
-	    for i in range(num_steps):
-	        img = self.get_img()
-	        plt.plot()
-	        plt.imshow(img)
-	        plt.savefig('imgs/pos{:04d}.png'.format(i))
-                out = self.robot.arm.move_ee_xyz(step.tolist(), eef_step=0.015)
-            return out
-	else:
-	    return self.robot.arm.move_ee_xyz(delta_xyz, eef_step=0.015)
+            step = np.array(delta_xyz) / num_steps
+            for i in range(num_steps):
+                img = self.get_img()
+                plt.plot()
+                plt.imshow(img)
+                plt.img_save_namefig('imgs/{s}{:04d}.png'.format(img_save_name, i))
+                    out = self.robot.arm.move_ee_xyz(step.tolist(), eef_step=0.015)
+                return out
+        else:
+            return self.robot.arm.move_ee_xyz(delta_xyz, eef_step=0.015)
 
 
     def set_ee_pose(self, pos, ori=None, ignore_physics=False):
@@ -174,13 +175,13 @@ class PushingEnv(object):
                 break
         return start_x, start_y, end_x, end_y
 
-    def execute_push(self, start_x, start_y, end_x, end_y, save=False):
+    def execute_push(self, start_x, start_y, end_x, end_y, img_save_name=None):
         # move to starting push location
         init_obj = self.get_box_pose()[0][:2]
         self.move_ee_xyz([start_x-self.ee_home[0], start_y-self.ee_home[1], 0])
         self.move_ee_xyz([0, 0, self.ee_min_height-self.ee_rest_height])
         
-        self.move_ee_xyz([end_x-start_x, end_y-start_y, 0], save)# push
+        self.move_ee_xyz([end_x-start_x, end_y-start_y, 0], img_save_name)# push
         # important that we use move_ee_xyz, as set_ee_pose can throw obj in motion
         self.move_ee_xyz([0, 0, self.ee_rest_height-self.ee_min_height])
         
@@ -189,16 +190,17 @@ class PushingEnv(object):
         final_obj = self.get_box_pose()[0][:2]
         return init_obj, final_obj
 
-    def plan_inverse_model(self, model, save=False, seed=0):
-        p.connect(p.DIRECT)
-	self.go_home()
+    def plan_inverse_model(self, model, img_save_name=None, seed=0):
+
+        img_save_name_truth, img_save_name_model = None, None
+        if img_save_name is not None: img_save_name_truth, img_save_name_model = img_save_name + "truth", img_save_name + "model"
+
+        self.go_home()
         self.reset_box()
         np.random.seed(seed)
         start_x, start_y, end_x, end_y = self.sample_push(self.box_pos[0], self.box_pos[1])
-	p.startStateLogging( p.STATE_LOGGING_VIDEO_MP4, "reference.mp4")
-        init_obj, goal_obj = self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y)
+	    init_obj, goal_obj = self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_truth)
         
-        ### Write code for visualization ###
         init_obj = torch.FloatTensor(init_obj).unsqueeze(0)
         goal_obj = torch.FloatTensor(goal_obj).unsqueeze(0)
         # Get push from your model. Your model can have a method like "push = self.model.infer(init_obj, goal_obj)"        
@@ -206,36 +208,49 @@ class PushingEnv(object):
         push = push[0].detach().numpy()
         start_x, start_y, end_x, end_y = push
         self.reset_box()       
-	p.startStateLogging( p.STATE_LOGGING_VIDEO_MP4, "plan_inverse_model.mp4")
-        self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, save=save)
+        self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_model)
         final_obj = self.get_box_pose()[0][:2]
         goal_obj = goal_obj.numpy().flatten()
         loss = np.linalg.norm(final_obj-goal_obj)
         print("L2 Distance between final obj position and goal obj position is", loss)
         return loss
 
-    def plan_forward_model(self, model, seed=0):
+    def plan_forward_model(self, model, img_save_name=None, seed=0):
+        return self.plan_inverse_model(model, img_save_name=img_save_name_truth, seed=seed)
+
+        # same as plan inverse model I think! (CEM handled in infer())
+
+        '''
+        img_save_name_truth, img_save_name_model = None, None
+        if img_save_name is not None: img_save_name_truth, img_save_name_model = img_save_name + "truth", img_save_name + "model"
+
+
         self.go_home()
         self.reset_box()
         np.random.seed(seed)
         start_x, start_y, end_x, end_y = self.sample_push(self.box_pos[0], self.box_pos[1])
-        init_obj, goal_obj = self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y)
+        init_obj, goal_obj = self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_truth)
         
-        ### Write code for visualization ###
         init_obj = torch.FloatTensor(init_obj).unsqueeze(0)
         goal_obj = torch.FloatTensor(goal_obj).unsqueeze(0)
         # Get push from the forward model using CEM for planning.       
-        push = model.infer_CEM(init_obj, goal_obj, self)
+        push = model.infer(init_obj, goal_obj, self)
         start_x, start_y, end_x, end_y = push
         self.reset_box()   
-        self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y)
+        self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_model)
         final_obj = self.get_box_pose()[0][:2]
         goal_obj = goal_obj.numpy().flatten()
         loss = np.linalg.norm(final_obj-goal_obj)
         print("L2 Distance between final obj position and goal obj position is", loss)
         return loss
+        '''
 
-    def plan_inverse_model_extrapolate(self, seed=0):
+    def plan_inverse_model_extrapolate(self, model, img_save_name=None, seed=0):
+        
+        img_save_name_truth, img_save_name_model = None, None
+        if img_save_name is not None: img_save_name_truth, img_save_name_model = img_save_name + "truth", img_save_name + "model"
+
+
         self.go_home()
         self.reset_box()
         np.random.seed(seed)
@@ -250,12 +265,23 @@ class PushingEnv(object):
             start_x, start_y, end_x, end_y = self.sample_push(obj_x=obj_x, obj_y=obj_y, push_len=0.1, push_ang=push_ang)
             _, goal_obj = self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y)
         
-        ### Write code for visualization ###
         self.reset_box()        
         goal_obj = torch.FloatTensor(goal_obj).unsqueeze(0)
         
         # Get push from your model. Your model can have a method like "push = self.model.infer(init_obj, goal_obj)"
         # Your code should ideally call this twice: once at the start and once when you get intermediate state.
+        push = model.infer(init_obj, goal_obj)
+        push = push[0].detach().numpy()
+        start_x, start_y, end_x, end_y = push 
+        self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_model)
+        
+        intermediate_obj = self.get_box_pose()[0][:2]
+        push = model.infer(intermediate_obj, goal_obj)
+        push = push[0].detach().numpy()
+        start_x, start_y, end_x, end_y = push     
+        self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_model)
+        
+
 
         final_obj = self.get_box_pose()[0][:2]
         goal_obj = goal_obj.numpy().flatten()

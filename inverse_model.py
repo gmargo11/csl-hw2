@@ -162,7 +162,7 @@ if __name__ == "__main__":
     print("test loss:", errors[0])
     # try 10 random seeds
     for seed in range(1,10):
-	errors[seed] = env.plan_inverse_model(model, seed=seed)
+        errors[seed] = env.plan_inverse_model(model, seed=seed)
         print("test loss:", errors[seed])
     
     print("average loss:", np.mean(errors))

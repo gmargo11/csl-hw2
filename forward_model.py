@@ -113,11 +113,11 @@ class ForwardModel:
 
         return train_loss, valid_loss
 
-    def infer(self, init_obj, push):
+    def infer_fwd(self, init_obj, push):
         x = torch.cat((init_obj, push), axis=1)
         return self.net(x)
 
-    def infer_CEM(self, init_obj, goal_obj, env):
+    def infer(self, init_obj, goal_obj, env):
 
         num_samples = 100
         best_action = None
@@ -131,7 +131,7 @@ class ForwardModel:
             push = np.array([start_x, start_y, end_x, end_y])
             push = torch.FloatTensor(push).unsqueeze(0)
 
-            final_obj_pred = self.infer(init_obj, push)
+            final_obj_pred = self.infer_fwd(init_obj, push)
             final_obj_pred = goal_obj.numpy().flatten()
             goal_obj = goal_obj.numpy().flatten()
 
@@ -164,11 +164,9 @@ def sample_ang_len(mu_ang, kappa_ang, mu_len, sigma_len):
 
 
 
-
-
 if __name__ == "__main__":
     model = ForwardModel(ifrender=True)
-    num_epochs=10
+    num_epochs=40
     train_losses, valid_losses = model.train(num_epochs=num_epochs)
     model.save(PATH="forward_model_save.pt")
 
@@ -187,6 +185,15 @@ if __name__ == "__main__":
     #goal_obj = torch.FloatTensor(goal_obj).unsqueeze(0)
     #print(model.infer(init_obj, goal_obj))
 
-    env = PushingEnv(ifRender=True)
-    for seed in range(10):
-        print("test loss:", env.plan_forward_model(model, seed=seed))
+    env = PushingEnv(ifRender=False)
+    num_trials = 10
+    errors = np.zeros(num_trials)
+    # save one push
+    errors[0] = env.plan_forward_model(model, save=True, seed=0)
+    print("test loss:", errors[0])
+    # try 10 random seeds
+    for seed in range(1,10):
+        errors[seed] = env.plan_forward_model(model, seed=seed)
+        print("test loss:", errors[seed])
+    
+    print("average loss:", np.mean(errors))
