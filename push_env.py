@@ -5,6 +5,7 @@ import numpy as np
 from airobot import Robot, log_info
 from airobot.utils.common import euler2quat, quat2euler
 import torch
+import pybullet as p
 
 class PushingEnv(object):
     """
@@ -180,6 +181,7 @@ class PushingEnv(object):
         self.reset_box()
         np.random.seed(seed)
         start_x, start_y, end_x, end_y = self.sample_push(self.box_pos[0], self.box_pos[1])
+	p.startStateLogging( p.STATE_LOGGING_VIDEO_MP4, "reference.mp4")
         init_obj, goal_obj = self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y)
         
         ### Write code for visualization ###
@@ -190,6 +192,7 @@ class PushingEnv(object):
         push = push[0].detach().numpy()
         start_x, start_y, end_x, end_y = push
         self.reset_box()       
+	p.startStateLogging( p.STATE_LOGGING_VIDEO_MP4, "plan_inverse_model.mp4")
         self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y)
         final_obj = self.get_box_pose()[0][:2]
         goal_obj = goal_obj.numpy().flatten()

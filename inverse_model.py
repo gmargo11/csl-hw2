@@ -5,6 +5,8 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from dataset import ObjPushDataset
@@ -132,7 +134,7 @@ def plan_CEM(model, env):
 
 if __name__ == "__main__":
     model = InverseModel()
-    num_epochs=30
+    num_epochs=2
     train_losses, valid_losses = model.train(num_epochs=num_epochs)
     model.save(PATH="inverse_model_save.pt")
 
@@ -151,6 +153,6 @@ if __name__ == "__main__":
     #goal_obj = torch.FloatTensor(goal_obj).unsqueeze(0)
     #print(model.infer(init_obj, goal_obj))
 
-    env = PushingEnv(ifRender=True)
+    env = PushingEnv(ifRender=False)
     for seed in range(10):
         print("test loss:", env.plan_inverse_model(model, seed=seed))
