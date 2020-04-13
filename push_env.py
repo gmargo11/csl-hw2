@@ -7,6 +7,7 @@ from airobot.utils.common import euler2quat, quat2euler
 import torch
 import pybullet as p
 import matplotlib.pyplot as plt
+from PIL import Image
 
 class PushingEnv(object):
     """
@@ -66,14 +67,13 @@ class PushingEnv(object):
 
     def move_ee_xyz(self, delta_xyz, save=False):
 	if save:
-	    step_size = 0.0045
+	    step_size = 0.0015
             num_steps = int(np.linalg.norm(delta_xyz) / step_size)
 	    step = np.array(delta_xyz) / num_steps
 	    for i in range(num_steps):
 	        img = self.get_img()
-	        plt.figure()
-	        plt.imshow(img)
-	        plt.savefig('imgs/pos{:04d}.png'.format(i))
+	        im = Image.fromarray(img)
+	        im.save('imgs/pos{:04d}.png'.format(i))
                 out = self.robot.arm.move_ee_xyz(step.tolist(), eef_step=0.015)
             return out
 	else:

@@ -146,6 +146,7 @@ if __name__ == "__main__":
     plt.ylabel("Loss (MSE)")
     plt.ylim(0, train_losses[1] * 2.0)
     plt.legend(['Training Loss', 'Validation Loss'])
+    plt.save("inverse_model_training.png")
     plt.show()
 
     #init_obj = [0, 0]
