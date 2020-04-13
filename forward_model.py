@@ -182,6 +182,7 @@ if __name__ == "__main__":
     plt.xlabel("Epoch")
     plt.ylabel("Loss (MSE)")
     plt.legend(['Training Loss', 'Validation Loss'])
+    plt.ylim(plt.ylim(0, train_losses[1] * 2.0))
     plt.show()
     plt.savefig("forward_model_training.png")
 
