@@ -72,7 +72,8 @@ class PushingEnv(object):
 	    step = np.array(delta_xyz) / num_steps
 	    for i in range(num_steps):
 	        img = self.get_img()
-	        im = Image.fromarray(img)
+                print(img)
+	        im = Image.fromarray(np.uint8(img))
 	        im.save('imgs/pos{:04d}.png'.format(i))
                 out = self.robot.arm.move_ee_xyz(step.tolist(), eef_step=0.015)
             return out
@@ -138,7 +139,7 @@ class PushingEnv(object):
         rgb, _ = self.robot.cam.get_images(get_rgb=True)
         #if resize:
         #    rgb = self.resize_rgb(rgb)
-        return rgb/255.0
+        return rgb
 
 
     #def resize_rgb(self, rgb):
@@ -197,7 +198,7 @@ class PushingEnv(object):
         self.reset_box()
         np.random.seed(seed)
         start_x, start_y, end_x, end_y = self.sample_push(self.box_pos[0], self.box_pos[1])
-	    init_obj, goal_obj = self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_truth)
+        init_obj, goal_obj = self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_truth)
         
         init_obj = torch.FloatTensor(init_obj).unsqueeze(0)
         goal_obj = torch.FloatTensor(goal_obj).unsqueeze(0)
