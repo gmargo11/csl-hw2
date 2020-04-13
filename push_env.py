@@ -273,13 +273,13 @@ class PushingEnv(object):
         push = model.infer(init_obj, goal_obj)
         push = push[0].detach().numpy()
         start_x, start_y, end_x, end_y = push 
-        self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_model)
+        self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_model+"0")
         
         intermediate_obj = self.get_box_pose()[0][:2]
         push = model.infer(intermediate_obj, goal_obj)
         push = push[0].detach().numpy()
         start_x, start_y, end_x, end_y = push     
-        self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_model)
+        self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_model+"1")
         
 
 
