@@ -66,7 +66,7 @@ class PushingEnv(object):
 
     def move_ee_xyz(self, delta_xyz, save=False):
 	if save:
-	    step_size = 0.0015
+	    step_size = 0.015
             num_steps = int(np.linalg.norm(delta_xyz) / step_size)
 	    step = np.array(delta_xyz) / num_steps
 	    for i in range(num_steps):
