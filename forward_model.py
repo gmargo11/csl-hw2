@@ -125,10 +125,12 @@ class ForwardModel:
         best_action = None
         best_loss = float('inf')
 
+        env = PushingEnv()
+
         for i in range(num_samples):
             #push_ang, push_len = sample_ang_len(mu, sigma)
             print(init_obj)
-            start_x, start_y, end_x, end_y = PushingEnv.sample_push(init_obj[0], init_obj[1])
+            start_x, start_y, end_x, end_y = env.sample_push(init_obj[0], init_obj[1])
             #init_obj = np.array([obj_x, obj_y])
             #init_obj = torch.FloatTensor(init_obj).unsqueeze(0)
             push = np.array([start_x, start_y, end_x, end_y])
