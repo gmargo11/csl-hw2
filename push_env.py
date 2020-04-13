@@ -204,6 +204,8 @@ class PushingEnv(object):
         # Get push from your model. Your model can have a method like "push = self.model.infer(init_obj, goal_obj)"        
         push = model.infer(init_obj, goal_obj)
         push = push[0].detach().numpy()
+        
+        print(push)
         start_x, start_y, end_x, end_y = push
         self.reset_box()       
         self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_model)
