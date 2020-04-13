@@ -71,7 +71,7 @@ class PushingEnv(object):
 	    step = np.array(delta_xyz) / num_steps
 	    for i in range(num_steps):
 	        img = self.get_img()
-	        plt.plot()
+	        plt.figure()
 	        plt.imshow(img)
 	        plt.savefig('imgs/pos{:04d}.png'.format(i))
                 out = self.robot.arm.move_ee_xyz(step.tolist(), eef_step=0.015)
