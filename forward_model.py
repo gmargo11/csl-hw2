@@ -178,18 +178,13 @@ if __name__ == "__main__":
     plt.ylabel("Loss (MSE)")
     plt.legend(['Training Loss', 'Validation Loss'])
     plt.show()
-
-    #init_obj = [0, 0]
-    #goal_obj = [0.1, 0]
-    #init_obj = torch.FloatTensor(init_obj).unsqueeze(0)
-    #goal_obj = torch.FloatTensor(goal_obj).unsqueeze(0)
-    #print(model.infer(init_obj, goal_obj))
+    plt.savefig("forward_model_training.png")
 
     env = PushingEnv(ifRender=False)
     num_trials = 10
     errors = np.zeros(num_trials)
     # save one push
-    errors[0] = env.plan_forward_model(model, save=True, seed=0)
+    errors[0] = env.plan_forward_model(model, img_save_name="forward", seed=0)
     print("test loss:", errors[0])
     # try 10 random seeds
     for seed in range(1,10):
