@@ -6,6 +6,7 @@ from airobot import Robot, log_info
 from airobot.utils.common import euler2quat, quat2euler
 import torch
 import pybullet as p
+import matplotlib.pyplot as plt
 
 class PushingEnv(object):
     """
@@ -64,6 +65,10 @@ class PushingEnv(object):
         self.int_mat = self.robot.cam.get_cam_int()      
 
     def move_ee_xyz(self, delta_xyz):
+	img = self.get_img()
+	plt.plot()
+	plt.imshow(img)
+	plt.savefig('pos.png')
         return self.robot.arm.move_ee_xyz(delta_xyz, eef_step=0.015)
 
 
