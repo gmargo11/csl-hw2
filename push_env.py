@@ -65,15 +65,15 @@ class PushingEnv(object):
         self.ext_mat = self.robot.cam.get_cam_ext()
         self.int_mat = self.robot.cam.get_cam_int()      
 
-    def move_ee_xyz(self, delta_xyz, save=False):
-	if save:
+    def move_ee_xyz(self, delta_xyz, img_save_name):
+	if img_save_name:
 	    step_size = 0.0015
             num_steps = int(np.linalg.norm(delta_xyz) / step_size)
 	    step = np.array(delta_xyz) / num_steps
 	    for i in range(num_steps):
 	        img = self.get_img()
 	        im = Image.fromarray(img)
-	        im.save('imgs/pos{:04d}.png'.format(i))
+	        im.save('imgs/{s}{:04d}.png'.format(img_save_name, i))
                 out = self.robot.arm.move_ee_xyz(step.tolist(), eef_step=0.015)
             return out
 	else:
