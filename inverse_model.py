@@ -134,7 +134,7 @@ def plan_CEM(model, env):
 
 if __name__ == "__main__":
     model = InverseModel()
-    num_epochs=2
+    num_epochs=30
     train_losses, valid_losses = model.train(num_epochs=num_epochs)
     model.save(PATH="inverse_model_save.pt")
 
