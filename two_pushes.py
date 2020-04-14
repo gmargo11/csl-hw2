@@ -13,12 +13,12 @@ from inverse_model import InverseModel
 if __name__ == "__main__":
     # train inverse model
     inverse_model = InverseModel()
-    num_epochs=20
+    num_epochs=2
     train_losses, valid_losses = inverse_model.train(num_epochs=num_epochs)
 
     #train forward model
     forward_model = ForwardModel()
-    num_epochs=20
+    num_epochs=2
     train_losses, valid_losses = forward_model.train(num_epochs=num_epochs)
 
     env = PushingEnv(ifRender=False)
