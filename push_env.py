@@ -247,8 +247,11 @@ class PushingEnv(object):
 
     def plan_inverse_model_extrapolate(self, model, img_save_name=None, seed=0):
         
-        img_save_name_truth, img_save_name_model = None, None
-        if img_save_name is not None: img_save_name_truth, img_save_name_model = img_save_name + "truth", img_save_name + "model"
+        img_save_name_truth0, img_save_name_model0 = None, None
+        img_save_name_truth1, img_save_name_model1 = None, None
+        if img_save_name is not None: 
+            img_save_name_truth0, img_save_name_model0 = img_save_name + "truth0", img_save_name + "model0"
+            img_save_name_truth1, img_save_name_model1 = img_save_name + "truth1", img_save_name + "model1"
 
 
         self.go_home()
@@ -261,10 +264,15 @@ class PushingEnv(object):
         if np.random.random() < 0.5:
             push_ang -= np.pi
 
-        for _ in range(2):
-            obj_x, obj_y = self.get_box_pose()[0][:2]            
-            start_x, start_y, end_x, end_y = self.sample_push(obj_x=obj_x, obj_y=obj_y, push_len=0.1, push_ang=push_ang)
-            _, goal_obj = self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y)
+
+        obj_x, obj_y = self.get_box_pose()[0][:2]            
+        start_x, start_y, end_x, end_y = self.sample_push(obj_x=obj_x, obj_y=obj_y, push_len=0.1, push_ang=push_ang)
+        _, goal_obj = self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_truth0)
+
+        obj_x, obj_y = self.get_box_pose()[0][:2]            
+        start_x, start_y, end_x, end_y = self.sample_push(obj_x=obj_x, obj_y=obj_y, push_len=0.1, push_ang=push_ang)
+        _, goal_obj = self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_truth1)
+
         
         self.reset_box()        
         goal_obj = torch.FloatTensor(goal_obj).unsqueeze(0)
@@ -274,14 +282,14 @@ class PushingEnv(object):
         push = model.infer(init_obj, goal_obj)
         push = push[0].detach().numpy()
         start_x, start_y, end_x, end_y = push 
-        self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_model+"0")
+        self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_model0)
         
         intermediate_obj = self.get_box_pose()[0][:2]
         intermediate_obj = torch.FloatTensor(intermediate_obj).unsqueeze(0)
         push = model.infer(intermediate_obj, goal_obj)
         push = push[0].detach().numpy()
         start_x, start_y, end_x, end_y = push     
-        self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_model+"1")
+        self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_model1)
         
 
 
