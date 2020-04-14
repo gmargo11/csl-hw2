@@ -255,6 +255,7 @@ class PushingEnv(object):
         self.reset_box()
         np.random.seed(seed)
         init_obj = self.get_box_pose()[0][:2]
+        init_obj = torch.FloatTensor(init_obj).unsqueeze(0)
         push_ang = np.pi/3 + np.random.random()*np.pi/3
         
         if np.random.random() < 0.5:
@@ -276,6 +277,7 @@ class PushingEnv(object):
         self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_model+"0")
         
         intermediate_obj = self.get_box_pose()[0][:2]
+        intermediate_obj = torch.FloatTensor(intermediate_obj).unsqueeze(0)
         push = model.infer(intermediate_obj, goal_obj)
         push = push[0].detach().numpy()
         start_x, start_y, end_x, end_y = push     
