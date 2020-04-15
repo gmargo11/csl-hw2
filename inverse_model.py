@@ -114,7 +114,7 @@ class InverseModel:
 
         return train_loss, valid_loss
 
-    def infer(self, init_obj, goal_obj):
+    def infer(self, init_obj, goal_obj, env=None):
         x = torch.cat((init_obj, goal_obj), axis=1)
         return self.net(x)
 

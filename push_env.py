@@ -202,7 +202,7 @@ class PushingEnv(object):
         init_obj = torch.FloatTensor(init_obj).unsqueeze(0)
         goal_obj = torch.FloatTensor(goal_obj).unsqueeze(0)
         # Get push from your model. Your model can have a method like "push = self.model.infer(init_obj, goal_obj)"        
-        push = model.infer(init_obj, goal_obj)
+        push = model.infer(init_obj, goal_obj, self)
         push = push[0].detach().numpy()
         
         print(push)
@@ -279,14 +279,14 @@ class PushingEnv(object):
         
         # Get push from your model. Your model can have a method like "push = self.model.infer(init_obj, goal_obj)"
         # Your code should ideally call this twice: once at the start and once when you get intermediate state.
-        push = model.infer(init_obj, goal_obj)
+        push = model.infer(init_obj, goal_obj, self)
         push = push[0].detach().numpy()
         start_x, start_y, end_x, end_y = push 
         self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_model0)
         
         intermediate_obj = self.get_box_pose()[0][:2]
         intermediate_obj = torch.FloatTensor(intermediate_obj).unsqueeze(0)
-        push = model.infer(intermediate_obj, goal_obj)
+        push = model.infer(intermediate_obj, goal_obj, self)
         push = push[0].detach().numpy()
         start_x, start_y, end_x, end_y = push     
         self.execute_push(start_x=start_x, start_y=start_y, end_x=end_x, end_y=end_y, img_save_name=img_save_name_model1)
